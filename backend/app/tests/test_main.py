@@ -32,8 +32,7 @@ async def test_create_produit(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_produits(monkeypatch):
     async def mock_obtenir_produits(*args, **kwargs):
-        # Return a simple list to avoid recursion in jsonable_encoder
-        return [{"nom": "Produit 1", "reference": "REF001"}]
+        return [{"nom": "Produit 1", "reference": "REF001", "description": "Sample product", "image": "http://example.com/image1.png", "stock": 5}]
 
     monkeypatch.setattr("app.services.produit_service.obtenir_produits", mock_obtenir_produits)
     async with AsyncClient(app=app, base_url="http://test") as ac:
@@ -41,24 +40,25 @@ async def test_get_produits(monkeypatch):
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
+
 @pytest.mark.asyncio
 async def test_get_produit_by_id(monkeypatch):
     async def mock_obtenir_produit_par_id(*args, **kwargs):
-        # Return a standard dict to avoid recursion in jsonable_encoder
-        return {"nom": "Produit Test", "reference": "REF123"}
+        return {"nom": "Produit Test", "reference": "REF123", "description": "Sample description", "image": "http://example.com/image.png", "stock": 10}
 
     monkeypatch.setattr("app.services.produit_service.obtenir_produit_par_id", mock_obtenir_produit_par_id)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         produit_id = 1
         response = await ac.get(f"/produits/{produit_id}")
     assert response.status_code == 200
-    assert response.json() == {"nom": "Produit Test", "reference": "REF123"}
+    assert response.json() == {"nom": "Produit Test", "reference": "REF123", "description": "Sample description", "image": "http://example.com/image.png", "stock": 10}
+
 
 
 @pytest.mark.asyncio
 async def test_update_produit(monkeypatch):
     async def mock_mettre_a_jour_produit(*args, **kwargs):
-        return None  # Simulate success
+        return {"nom": "Produit Mis à jour", "reference": "REF124", "description": "Updated description", "image": "http://example.com/image-updated.png", "stock": 20}
 
     monkeypatch.setattr("app.services.produit_service.mettre_a_jour_produit", mock_mettre_a_jour_produit)
     async with AsyncClient(app=app, base_url="http://test") as ac:
@@ -66,12 +66,14 @@ async def test_update_produit(monkeypatch):
         updated_data = {
             "nom": "Produit Mis à jour",
             "reference": "REF124",
-            "description": "Description mise à jour",
+            "description": "Updated description",
             "image": "http://example.com/image-updated.png",
             "stock": 20
         }
         response = await ac.put(f"/produits/{produit_id}", json=updated_data)
     assert response.status_code == 200
+    assert response.json() == updated_data
+
 
 @pytest.mark.asyncio
 async def test_delete_produit(monkeypatch):
