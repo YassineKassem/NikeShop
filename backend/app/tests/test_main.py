@@ -1,13 +1,15 @@
+# backend/tests/test_main.py
 import pytest
 from httpx import AsyncClient
 from app.main import app
-from unittest.mock import AsyncMock
+from app.services.produit_service import creer_produit, obtenir_produits, obtenir_produit_par_id, mettre_a_jour_produit, supprimer_produit
 
-# Test for creating a product
 @pytest.mark.asyncio
-async def test_create_produit(mocker):
-    # Mock the creer_produit function to simulate DB operation without Supabase
-    mocker.patch("app.services.produit_service.creer_produit", new=AsyncMock(return_value=None))
+async def test_create_produit(monkeypatch):
+    async def mock_creer_produit(*args, **kwargs):
+        return None
+    
+    monkeypatch.setattr("app.services.produit_service.creer_produit", mock_creer_produit)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         produit_data = {
             "nom": "Produit Test",
@@ -20,31 +22,34 @@ async def test_create_produit(mocker):
     assert response.status_code == 200
     assert response.json() == {"message": "Produit créé avec succès"}
 
-# Test for retrieving products
 @pytest.mark.asyncio
-async def test_get_produits(mocker):
-    # Mock obtenir_produits to simulate DB retrieval
-    mocker.patch("app.services.produit_service.obtenir_produits", new=AsyncMock(return_value=[]))
+async def test_get_produits(monkeypatch):
+    async def mock_obtenir_produits(*args, **kwargs):
+        return []
+    
+    monkeypatch.setattr("app.services.produit_service.obtenir_produits", mock_obtenir_produits)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/produits/")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
-# Test for retrieving a product by ID
 @pytest.mark.asyncio
-async def test_get_produit_by_id(mocker):
-    # Mock obtenir_produit_par_id to return a test product or None
-    mocker.patch("app.services.produit_service.obtenir_produit_par_id", new=AsyncMock(return_value=None))
+async def test_get_produit_by_id(monkeypatch):
+    async def mock_obtenir_produit_par_id(*args, **kwargs):
+        return None  # Return a mock product or None for testing
+    
+    monkeypatch.setattr("app.services.produit_service.obtenir_produit_par_id", mock_obtenir_produit_par_id)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         produit_id = 1  # Example ID
         response = await ac.get(f"/produits/{produit_id}")
     assert response.status_code == 200 or response.status_code == 404
 
-# Test for updating a product
 @pytest.mark.asyncio
-async def test_update_produit(mocker):
-    # Mock mettre_a_jour_produit to simulate updating a product
-    mocker.patch("app.services.produit_service.mettre_a_jour_produit", new=AsyncMock(return_value=None))
+async def test_update_produit(monkeypatch):
+    async def mock_mettre_a_jour_produit(*args, **kwargs):
+        return None
+    
+    monkeypatch.setattr("app.services.produit_service.mettre_a_jour_produit", mock_mettre_a_jour_produit)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         produit_id = 1
         updated_data = {
@@ -57,11 +62,12 @@ async def test_update_produit(mocker):
         response = await ac.put(f"/produits/{produit_id}", json=updated_data)
     assert response.status_code == 200 or response.status_code == 404
 
-# Test for deleting a product
 @pytest.mark.asyncio
-async def test_delete_produit(mocker):
-    # Mock supprimer_produit to simulate deleting a product
-    mocker.patch("app.services.produit_service.supprimer_produit", new=AsyncMock(return_value=None))
+async def test_delete_produit(monkeypatch):
+    async def mock_supprimer_produit(*args, **kwargs):
+        return None
+    
+    monkeypatch.setattr("app.services.produit_service.supprimer_produit", mock_supprimer_produit)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         produit_id = 1
         response = await ac.delete(f"/produits/{produit_id}")
