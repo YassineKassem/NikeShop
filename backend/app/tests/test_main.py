@@ -32,18 +32,20 @@ async def test_create_produit(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_produits(monkeypatch):
     async def mock_obtenir_produits(*args, **kwargs):
-        return []  # Simulate an empty list response
+        # Return a simple list to avoid recursion in jsonable_encoder
+        return [{"nom": "Produit 1", "reference": "REF001"}]
 
     monkeypatch.setattr("app.services.produit_service.obtenir_produits", mock_obtenir_produits)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/produits/")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)  # Check if the response is a list
+    assert isinstance(response.json(), list)
 
 @pytest.mark.asyncio
 async def test_get_produit_by_id(monkeypatch):
     async def mock_obtenir_produit_par_id(*args, **kwargs):
-        return {"nom": "Produit Test", "reference": "REF123"}  # Simulate a product response
+        # Return a standard dict to avoid recursion in jsonable_encoder
+        return {"nom": "Produit Test", "reference": "REF123"}
 
     monkeypatch.setattr("app.services.produit_service.obtenir_produit_par_id", mock_obtenir_produit_par_id)
     async with AsyncClient(app=app, base_url="http://test") as ac:
@@ -51,6 +53,7 @@ async def test_get_produit_by_id(monkeypatch):
         response = await ac.get(f"/produits/{produit_id}")
     assert response.status_code == 200
     assert response.json() == {"nom": "Produit Test", "reference": "REF123"}
+
 
 @pytest.mark.asyncio
 async def test_update_produit(monkeypatch):
