@@ -2,10 +2,11 @@ from fastapi import FastAPI,Request
 from .controllers import produit_controller
 from .config.db import database
 from fastapi.middleware.cors import CORSMiddleware
-
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
-
+# Initialize Prometheus metrics
+Instrumentator().instrument(app).expose(app)
 # Allow CORS for the frontend (localhost:5173 in this case)
 app.add_middleware(
     CORSMiddleware,

@@ -11,6 +11,8 @@ services:
       - "8000:8000"
     networks:
       - nike-network
+    expose:
+      - "8000"
 
   frontend:
     image: yassinekassem/nike-shop-frontend:latest
@@ -21,6 +23,24 @@ services:
       VITE_API_URL: "http://192.168.50.4:8000/produits"
     depends_on:
       - backend
+    networks:
+      - nike-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - nike-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
     networks:
       - nike-network
 
