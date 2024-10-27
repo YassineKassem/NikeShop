@@ -9,9 +9,20 @@ services:
       - SUPABASE_KEY=${SUPABASE_KEY}
     ports:
       - "8000:8000"
+    networks:
+      - nike-network
 
   frontend:
     image: yassinekassem/nike-shop-frontend:latest
     container_name: nike-shop-frontend
     ports:
       - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend:8000/produits
+    depends_on:
+      - backend
+    networks:
+      - nike-network
+
+networks:
+  nike-network:
