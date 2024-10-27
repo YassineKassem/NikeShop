@@ -18,7 +18,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      VITE_API_URL: "http://backend:8000/produits"
+      VITE_API_URL: "http://192.168.50.4:8000/produits"
     depends_on:
       - backend
     networks:
