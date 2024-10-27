@@ -2,25 +2,16 @@ version: '3.8'
 
 services:
   backend:
-    image: fastapi-backend
-    build:
-      context: ./backend
+    image: yassinekassem/nike-shop-backend:latest
+    container_name: nike-shop-backend
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
     ports:
       - "8000:8000"
-    networks:
-      - app-network
 
   frontend:
-    image: react-vite-frontend
-    build:
-      context: ./frontend
+    image: yassinekassem/nike-shop-frontend:latest
+    container_name: nike-shop-frontend
     ports:
       - "5173:5173"
-    networks:
-      - app-network
-    environment:
-      - VITE_API_URL=http://backend:8000  # Set to backend service
-
-networks:
-  app-network:
-    driver: bridge
