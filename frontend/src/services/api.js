@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://backend:8000/produits/';  // FastAPI backend URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://backend:8000/produits';
 //const API_URL = import.meta.env.VITE_API_URL;
 
 // Function to fetch products
