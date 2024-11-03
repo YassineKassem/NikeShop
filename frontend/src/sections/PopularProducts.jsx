@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { PopularProductCard } from "../components";  // Import the product card component
-import { fetchProducts } from '../services/api';  // Import the fetchProducts service
+import { fetchProducts, deleteProductById } from '../services/api';  // Import the fetch and delete services
 import AddProductForm from '../components/AddProductForm';  // Import the AddProductForm
 
 const PopularProducts = () => {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        // Fetch products dynamically from FastAPI
         async function loadProducts() {
             try {
                 const data = await fetchProducts();
-                setProducts(data);  // Store the fetched data in the state
+                setProducts(data);
             } catch (error) {
                 console.error('Error loading products:', error);
             }
         }
-        loadProducts();  // Load products when the component mounts
+        loadProducts();
     }, []);
 
     const handleProductAdded = (newProduct) => {
-        setProducts((prevProducts) => [...prevProducts, newProduct]);  // Add the new product to the list
+        setProducts((prevProducts) => [...prevProducts, newProduct]);
+    };
+
+    const handleProductDelete = async (productId) => {
+        try {
+            await deleteProductById(productId);
+            setProducts((prevProducts) => prevProducts.filter(product => product.id !== productId));
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
     };
 
     return (
@@ -40,11 +48,13 @@ const PopularProducts = () => {
                     {products.length > 0 ? (
                         products.map((product) => (
                             <PopularProductCard
-                                key={product.reference}  // Using reference as unique key
-                                name={product.nom}       // Product name
-                                imgURL={product.image}   // Image URL for the product
-                                stock={product.stock}    // Product stock
-                            />
+                                key={product.id}  // Ensure 'id' is unique
+                                name={product.nom}
+                                imgURL={product.image}
+                                description={product.description}
+                                stock={product.stock}
+                                onDelete={() => handleProductDelete(product.id)}  // Replace with actual delete function
+                                />
                         ))
                     ) : (
                         <p>Loading products...</p>
@@ -52,10 +62,9 @@ const PopularProducts = () => {
                 </div>
             </section>
 
-            {/* Section to Add a New Product */}
             <section className="add-product-form">
                 <h3>Add a New Product</h3>
-                <AddProductForm onProductAdded={handleProductAdded} />  {/* Use AddProductForm component */}
+                <AddProductForm onProductAdded={handleProductAdded} />
             </section>
         </div>
     );
